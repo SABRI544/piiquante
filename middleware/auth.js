@@ -10,21 +10,13 @@ module.exports = (req, res, next) => {
     //décodage du token et vérification
     const decodedToken = jwt.verify(token, process.env.JWT_PASSWORD);
     const userId = decodedToken.userId;
-
     //id de l'utilisateur connecté avec token et bearer
     req.auth = { userId };
 
-    //vérification que le userid est le même
-    if (req.body.userId && req.body.userId !== userId) {
-      throw "User Id non valable !";
-      //ils ne sont pas identiques = message d'erreur
-    } else {
-      // si tout est OK
-      next();
-    }
-  } catch {
+    next();
+  } catch (error) {
     res.status(401).json({
-      error: new Error("Requête invalide !"),
+      error,
     });
   }
 };

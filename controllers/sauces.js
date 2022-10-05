@@ -1,6 +1,7 @@
 const Sauce = require("../models/saucemodel");
-// package "fs" pour effacer/modifier images du répertoire
+// package "fs"
 const fs = require("fs");
+const { log } = require("console");
 
 exports.getSauces = (req, res, next) => {
   Sauce.find()
@@ -17,7 +18,7 @@ exports.createSauce = (req, res, next) => {
   const sauce = new Sauce({
     //L'opérateur spread ... est utilisé pour faire une copie de tous les éléments de req.body
     ...sauceObject,
-    userId: req.auth.userId, //le bon id
+    userId: req.auth.userId,
 
     //récupération de l'url dynamique 'image' généré par Multer
     imageUrl: `${req.protocol}://${req.get("host")}/images/${
@@ -85,26 +86,26 @@ exports.modifySauce = (req, res, next) => {
       }
     : { ...req.body };
   delete sauceObject._userId;
-  Sauce.findOne({ _id: req.params.id })
 
-    .then((sauce) => {
-      if (sauce.userId == req.auth.userId) {
-        const filename = sauce.imageUrl.split("/images/")[1];
+  if (sauceObject !== null) {
+    Sauce.findOne({ _id: req.params.id })
+      .then((sauce) => {
+        const filename = sauce.imageUrl.split("/images")[1];
         fs.unlink(`images/${filename}`, () => {
           Sauce.updateOne(
             { _id: req.params.id },
             { ...sauceObject, _id: req.params.id }
           )
-            .then(() => res.status(200).json({ message: "Sauce modifié!" }))
-
+            .then(() => res.status(200).json({ message: "Objet modifié!" }))
             .catch((error) => res.status(401).json({ error }));
         });
-      } else {
-        res.status(403).json({ message: "non autorisé" });
-      }
-    })
-
-    .catch((error) => res.status(401).json({ error }));
+      })
+      .catch((error) => res.status(400).json({ error }));
+  } else {
+    Sauce.updateOne({ _id: req.params.id }, { ...req.body })
+      .then(() => res.status(200).json({ message: "Sauce modifiée" }))
+      .then((error) => res.status(401).json({ error }));
+  }
 };
 
 //vote like/dislike
