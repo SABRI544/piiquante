@@ -1,7 +1,6 @@
 const Sauce = require("../models/saucemodel");
 // package "fs"
 const fs = require("fs");
-const { log } = require("console");
 
 exports.getSauces = (req, res, next) => {
   Sauce.find()
