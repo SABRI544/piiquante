@@ -89,7 +89,7 @@ exports.modifySauce = (req, res, next) => {
   if (sauceObject !== null) {
     Sauce.findOne({ _id: req.params.id })
       .then((sauce) => {
-        const filename = sauce.imageUrl.split("/images")[1];
+        const filename = sauce.imageUrl.split("/images/")[1];
         fs.unlink(`images/${filename}`, () => {
           Sauce.updateOne(
             { _id: req.params.id },
